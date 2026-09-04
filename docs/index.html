@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KYC Onboarding Decision Waterfall — a governed Xano proof</title>
+    <meta
+      name="description"
+      content="A governed, versioned KYC onboarding waterfall built on Xano with @xanots/sdk. One rule set every channel calls, recording the exact stage that fired and the version."
+    />
+    <style>
+      :root {
+        --bg: #0b0c10;
+        --panel: #14161d;
+        --panel-2: #1b1e27;
+        --border: #262a35;
+        --text: #e7e9ee;
+        --muted: #9aa1af;
+        --primary: #3b82f6;
+        --primary-ink: #eff6ff;
+        --red: #f87171;
+        --amber: #fbbf24;
+        --green: #34d399;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: radial-gradient(1200px 600px at 50% -200px, #16233f 0%, var(--bg) 55%);
+        color: var(--text);
+        font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      a { color: inherit; }
+      .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+      header { padding: 72px 0 8px; text-align: center; }
+      .badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 22px; }
+      .badge {
+        font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+        padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border);
+        background: var(--panel); color: var(--muted);
+      }
+      .badge.play { color: #bcd0ff; border-color: #2a3a63; background: #142141; }
+      h1 { font-size: 44px; line-height: 1.1; letter-spacing: -.02em; margin: 0 0 14px; }
+      .tagline { font-size: 19px; color: var(--muted); max-width: 680px; margin: 0 auto 20px; }
+      .meta {
+        font-size: 14px; color: var(--muted); margin-bottom: 26px;
+        font-variant-numeric: tabular-nums;
+      }
+      .meta b { color: var(--text); }
+      .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+        font-weight: 600; font-size: 15px; padding: 11px 20px; border-radius: 10px;
+        border: 1px solid transparent; transition: background .15s, border-color .15s, transform .05s;
+      }
+      .btn:active { transform: translateY(1px); }
+      .btn.primary { background: var(--primary); color: var(--primary-ink); }
+      .btn.primary:hover { background: #2f6ed6; }
+      .btn.ghost { background: transparent; border-color: var(--border); color: var(--text); }
+      .btn.ghost:hover { border-color: #3a4152; background: var(--panel); }
+      .shot {
+        margin: 44px auto 8px; border-radius: 14px; border: 1px solid var(--border);
+        overflow: hidden; box-shadow: 0 30px 80px -30px rgba(0,0,0,.7);
+      }
+      .shot img { display: block; width: 100%; height: auto; }
+      section { padding: 40px 0; border-top: 1px solid var(--border); }
+      section:first-of-type { border-top: none; }
+      h2 { font-size: 24px; letter-spacing: -.01em; margin: 0 0 6px; }
+      h2 + .sub { color: var(--muted); margin: 0 0 22px; }
+      .grid { display: grid; gap: 16px; }
+      .grid.two { grid-template-columns: 1fr 1fr; }
+      .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+      .card h3 { margin: 0 0 6px; font-size: 16px; }
+      .card p { margin: 0; color: var(--muted); font-size: 14px; }
+      .flow { counter-reset: step; display: grid; gap: 10px; }
+      .flow .row { display: flex; gap: 12px; align-items: baseline; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; }
+      .pill { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+      .pill.red { color: var(--red); background: rgba(248,113,113,.14); }
+      .pill.amber { color: var(--amber); background: rgba(251,191,36,.14); }
+      .pill.green { color: var(--green); background: rgba(52,211,153,.14); }
+      table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+      th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+      td code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; color: #cdd3df; }
+      .verb { font-weight: 700; font-family: ui-monospace, monospace; font-size: 12px; color: #bcd0ff; }
+      pre {
+        background: var(--panel-2); border: 1px solid var(--border); border-radius: 12px;
+        padding: 18px 20px; overflow-x: auto; font-size: 13.5px; line-height: 1.7;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #cdd3df;
+      }
+      .note { color: var(--muted); font-size: 14px; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+      footer { padding: 40px 0 64px; text-align: center; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); }
+      @media (max-width: 720px) {
+        h1 { font-size: 34px; }
+        .grid.two { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="badges">
+          <span class="badge play">Play 1 · Business Logic Centralization</span>
+          <span class="badge">Banking · Financial crime</span>
+        </div>
+        <h1>KYC Onboarding Decision Waterfall</h1>
+        <p class="tagline">
+          One governed, versioned KYC waterfall that every onboarding channel calls, so each applicant
+          decides the same way and every decision is auditable.
+        </p>
+        <p class="meta"><b>4 tables</b> · <b>9 API endpoints</b> · <b>3 RBAC roles</b> · native <span class="mono">@xanots/sdk</span> auth · no add-ons</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="https://github.com/xano-scratch/kyc-onboarding-waterfall">View on GitHub</a>
+          <a class="btn ghost" href="#use">Use this template</a>
+        </div>
+      </header>
+
+      <div class="shot">
+        <img src="screenshot.png" alt="The decision screen: a declined applicant with the exact stage that fired, its reason code, and the rule-set version." />
+      </div>
+
+      <section>
+        <h2>What it demonstrates</h2>
+        <p class="sub">Onboarding rules pulled out of scattered channel code into one governed layer.</p>
+        <div class="grid two">
+          <div class="card">
+            <h3>Define once</h3>
+            <p>The rules live in one <span class="mono">rule_stages</span> table, ordered and versioned, instead of copied across the account-opening app and partner channels.</p>
+          </div>
+          <div class="card">
+            <h3>Version it</h3>
+            <p>Editing a stage bumps the rule-set version. Re-run the same applicant and the decision can move, with both decisions kept.</p>
+          </div>
+          <div class="card">
+            <h3>Audit it</h3>
+            <p>Every run writes one <span class="mono">decisions</span> row with the outcome, the exact stage that fired, its reason code, and the version.</p>
+          </div>
+          <div class="card">
+            <h3>Govern access</h3>
+            <p>Roles are enforced at the API layer. A viewer reads, an analyst submits and runs, an admin edits the rules. Never row-level security.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>The one governed job</h2>
+        <p class="sub">An applicant runs top to bottom. The first stage that fires stops the waterfall and decides.</p>
+        <div class="flow">
+          <div class="row"><span class="pill red">Decline</span><span>Watchlist hit, checked first. A watchlist flag declines outright.</span></div>
+          <div class="row"><span class="pill amber">Refer</span><span>Risk score at or above the threshold refers for review.</span></div>
+          <div class="row"><span class="pill amber">Refer</span><span>Identity match at or below the threshold refers for review.</span></div>
+          <div class="row"><span class="pill green">Approve</span><span>No stage fired. The applicant clears every active rule.</span></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>API surface</h2>
+        <p class="sub">One API group, <span class="mono">api:kyc</span>. Access is checked in the endpoint, at the API layer.</p>
+        <table>
+          <thead><tr><th>Method</th><th>Path</th><th>Enforces</th></tr></thead>
+          <tbody>
+            <tr><td><span class="verb">POST</span></td><td><code>/api:kyc/seed</code></td><td>Public. Resets and seeds the demo data.</td></tr>
+            <tr><td><span class="verb">POST</span></td><td><code>/api:kyc/auth/login</code></td><td>Public. Email and password to a token.</td></tr>
+            <tr><td><span class="verb">GET</span></td><td><code>/api:kyc/applicants/list</code></td><td>Any signed-in role.</td></tr>
+            <tr><td><span class="verb">POST</span></td><td><code>/api:kyc/applicants</code></td><td>Analyst or admin. Validates the scores.</td></tr>
+            <tr><td><span class="verb">POST</span></td><td><code>/api:kyc/applicants/{id}/run</code></td><td>Analyst or admin. Runs the waterfall.</td></tr>
+            <tr><td><span class="verb">GET</span></td><td><code>/api:kyc/decisions/{id}</code></td><td>Any role. Joins applicant and firing stage.</td></tr>
+            <tr><td><span class="verb">GET</span></td><td><code>/api:kyc/decisions</code></td><td>Any role. The audit trail.</td></tr>
+            <tr><td><span class="verb">GET</span></td><td><code>/api:kyc/stages</code></td><td>Any role. The ordered rule set.</td></tr>
+            <tr><td><span class="verb">PUT</span></td><td><code>/api:kyc/stages/{id}</code></td><td>Admin only. Edits a stage, bumps the version.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>The frontend</h2>
+        <p class="sub">React + Vite + Tailwind v4 + shadcn/ui, deriving every path and type from the backend defs.</p>
+        <div class="grid two">
+          <div class="card"><h3>Sign in</h3><p>One-click sign-in as viewer, analyst, or admin through the real login endpoint.</p></div>
+          <div class="card"><h3>Applicants</h3><p>The list, a submit form, and a "Run waterfall" action per applicant.</p></div>
+          <div class="card"><h3>Decision</h3><p>The outcome, the stage that fired, its reason code, the version, and the facts.</p></div>
+          <div class="card"><h3>Rule set and audit</h3><p>The ordered versioned stages (admins edit inline) and the audit trail of every run.</p></div>
+        </div>
+      </section>
+
+      <section id="use">
+        <h2>Use this template</h2>
+        <p class="sub">Point your coding agent at the repo and let it clone, install, and deploy your own copy.</p>
+        <pre>Start a new Xano backend from the template at
+https://github.com/xano-scratch/kyc-onboarding-waterfall
+
+Clone it, run npm install, then `npx xanots login` and
+`npm run xano:deploy` to get your own live copy. Call the
+POST /api:kyc/seed endpoint once to load the demo data.</pre>
+        <p class="note">
+          The live preview links are ephemeral. They expire and re-deploy publishes a fresh URL, so a
+          shared link can stop serving. The durable artifact is this repo. Clone it and run
+          <span class="mono">npm run xano:deploy</span> for your own live copy.
+        </p>
+      </section>
+
+      <footer>
+        A Xano proof artifact, authored in TypeScript with @xanots/sdk. Runs on seed data, no external
+        credentials. An internal demonstration of the pattern, not a production customer reference.
+      </footer>
+    </div>
+  </body>
+</html>

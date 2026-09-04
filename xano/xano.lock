@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "objects": {
+    "app:kyc": {
+      "guid": "78e4b9c64083dc94e9b39d2c4dbbc4e3",
+      "canonical": "kyc",
+      "canonical_source": "code"
+    },
+    "dbo:applicants": {
+      "guid": "e7b39d8ffe49c097c98b851c73e72941"
+    },
+    "dbo:decisions": {
+      "guid": "2841cfb910d54157958cb9e1e304358c"
+    },
+    "dbo:rule_stages": {
+      "guid": "f69672afa280cb4fe34884eea98ba84e"
+    },
+    "dbo:users": {
+      "guid": "157d4a98d979cf04b9ccdb98dfc15229"
+    },
+    "query:kyc|GET|applicants/list": {
+      "guid": "2b0dc694fa0263a9cf15379ccaefa6a2"
+    },
+    "query:kyc|GET|decisions": {
+      "guid": "b626234f2df897d90c5c890fe574b617"
+    },
+    "query:kyc|GET|decisions/{id}": {
+      "guid": "ce951169dac7910849fc3c8b17aabbd3"
+    },
+    "query:kyc|GET|stages": {
+      "guid": "9633c3ddc785de621039b66b76fdc3b3"
+    },
+    "query:kyc|POST|applicants": {
+      "guid": "ac5f99851d76f9373b6085102295e3c4"
+    },
+    "query:kyc|POST|applicants/{id}/run": {
+      "guid": "17a194f75f9b1b85abc3847f8c7f7b44"
+    },
+    "query:kyc|POST|auth/login": {
+      "guid": "1d7d96e8de85e24cd081cfc3c2b206f9"
+    },
+    "query:kyc|POST|seed": {
+      "guid": "7a81c1f7a38f9545509e3f8804028b57"
+    },
+    "query:kyc|PUT|stages/{id}": {
+      "guid": "8dc540e23ccc09785ab49e5959daf02b"
+    }
+  }
+}
